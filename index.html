@@ -2,141 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>📊 Lab/Store Status Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- Firebase SDKs -->
+  <title>🧪 Stock Test Only</title>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #f7f0ff, #dbe6ff);
+      font-family: sans-serif;
+      background: #f0f4ff;
       text-align: center;
-      padding: 30px;
-      color: #333;
+      padding: 50px;
     }
-
-    h1 {
+    h2 {
       color: #4b0082;
-      font-size: 2em;
-      margin-bottom: 30px;
     }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 25px;
-      margin: 20px auto;
-      max-width: 400px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .status {
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-
-    .open {
-      color: green;
-      font-weight: bold;
-    }
-
-    .closed {
-      color: red;
-      font-weight: bold;
-    }
-
-    .label {
-      font-weight: bold;
-      margin-top: 10px;
-      color: #555;
-    }
-
     ul {
-      list-style: none;
+      list-style-type: none;
       padding: 0;
     }
-
     li {
-      font-size: 18px;
-      margin: 8px 0;
-      background: #f2f2f2;
+      background: white;
+      margin: 10px auto;
       padding: 10px;
-      border-radius: 6px;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #666;
+      width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-
-  <h1>📊 Lab/Store Status Dashboard</h1>
-
-  <div class="card">
-    <div class="status" id="statusText">Loading status...</div>
-    <div class="label" id="lastSeenText"></div>
-  </div>
-
-  <div class="card">
-    <h2>📚 Store Stock</h2>
-    <ul id="stockList">
-      <li>Loading stock...</li>
-    </ul>
-  </div>
-
-  <footer>Powered by ESP32 + Firebase • Updated in real-time</footer>
+  <h2>📦 Live Store Stock</h2>
+  <ul id="stockList">Loading stock...</ul>
 
   <script>
-    // ✅ Replace this config with YOUR Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+    // Your Firebase config
+    var firebaseConfig = {
+      apiKey: "AIzaSyCUX8yDznSQb6VnVOmdzxxgxsXHqG2fP8U",
+      authDomain: "status-mesh.firebaseapp.com",
+      databaseURL: "https://status-mesh-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "status-mesh",
+      storageBucket: "status-mesh.appspot.com",
+      messagingSenderId: "298860609902",
+      appId: "1:298860609902:web:a6e18287dfcfe49b13417f",
+      measurementId: "G-KBCNYLM353"
     };
     firebase.initializeApp(firebaseConfig);
 
-    // 🔁 Realtime Status from ESP32
-    const statusRef = firebase.database().ref("storeStatus");
-    statusRef.on("value", (snapshot) => {
-      const data = snapshot.val();
-      const statusEl = document.getElementById("statusText");
-      const lastSeenEl = document.getElementById("lastSeenText");
-
-      if (data && data.status) {
-        statusEl.innerHTML = `Status: <span class="${data.status.toLowerCase()}">${data.status}</span>`;
-        lastSeenEl.innerText = "Last Seen: " + new Date(data.last_seen * 1000).toLocaleString();
-      } else {
-        statusEl.innerHTML = "Status: <span class='closed'>Closed</span>";
-        lastSeenEl.innerText = "Last Seen: Not available";
-      }
-    });
-
-    // 🔁 Realtime Stock from Admin
     const stockRef = firebase.database().ref("stock");
-    stockRef.on("value", (snapshot) => {
+    stockRef.on("value", function(snapshot) {
       const stock = snapshot.val();
-      const stockList = document.getElementById("stockList");
+      const ul = document.getElementById("stockList");
+      ul.innerHTML = "";
 
       if (stock) {
-        stockList.innerHTML = "";
         for (let item in stock) {
-          stockList.innerHTML += `<li><strong>${item}</strong>: ${stock[item]}</li>`;
+          ul.innerHTML += `<li><strong>${item}:</strong> ${stock[item]}</li>`;
         }
       } else {
-        stockList.innerHTML = "<li>No stock data available.</li>";
+        ul.innerHTML = "<li>No stock data found.</li>";
       }
     });
   </script>
-
 </body>
 </html>
