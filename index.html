@@ -1,99 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>🛠️ Admin Panel</title>
+  <meta charset="UTF-8">
+  <title>📊 Lab/Store Status Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #d3cce3, #e9e4f0);
+      color: #333;
+      text-align: center;
       padding: 30px;
-      background-color: #f0f4f8;
     }
     h1 {
-      text-align: center;
+      font-size: 2em;
+      color: #4b0082;
+      margin-bottom: 20px;
     }
-    form {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
+    .card {
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 400px;
+      margin: 20px auto;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
-    .section {
-      margin-bottom: 30px;
+    .status {
+      font-size: 20px;
+      margin: 15px 0;
     }
-    label {
-      display: block;
-      margin: 10px 0 5px;
+    .open {
+      color: green;
       font-weight: bold;
     }
-    select, input {
-      width: 100%;
+    .closed {
+      color: red;
+      font-weight: bold;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      font-size: 18px;
+      margin: 8px 0;
+      background: #f2f2f2;
       padding: 8px;
-      margin-bottom: 15px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #007bff;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
-  <h1>🛠️ Admin Panel</h1>
-  <form method="post">
-    <div class="section">
-      <h2>Update Lab/Store Status</h2>
-      {% for location, data in status.items() %}
-        <label>{{ location }}</label>
-        <select name="{{ location }}">
-          <option value="Open" {% if data.status == 'Open' %}selected{% endif %}>Open</option>
-          <option value="Closed" {% if data.status == 'Closed' %}selected{% endif %}>Closed</option>
-        </select>
-      {% endfor %}
-    </div>
+  <h1>📊 Lab/Store Status Dashboard</h1>
+  <div class="card">
+    <div class="status" id="status">Loading status...</div>
+    <div id="lastSeen"></div>
+  </div>
+  <div class="card">
+    <h2>📚 Store Stock</h2>
+    <ul id="stockList"></ul>
+  </div>
 
-    <div class="section">
-      <h2>Update Store Stock</h2>
-      {% for item, qty in stock.items() %}
-        <label>{{ item }}</label>
-        <input type="number" name="{{ item }}" placeholder="Enter quantity" value="{{ qty if qty is not none else '' }}">
-      {% endfor %}
-    </div>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-    <button type="submit">✅ Update Dashboard</button>
-  </form>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+    // Status
+    const statusRef = firebase.database().ref("storeStatus");
+    statusRef.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        document.getElementById("status").innerHTML = `Status: <span class="${data.status.toLowerCase()}">${data.status}</span>`;
+        document.getElementById("lastSeen").innerText = `Last Seen: ${new Date(data.last_seen * 1000).toLocaleString()}`;
+      }
+    });
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCUX8yDznSQb6VnVOmdzxxgxsXHqG2fP8U",
-    authDomain: "status-mesh.firebaseapp.com",
-    databaseURL: "https://status-mesh-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "status-mesh",
-    storageBucket: "status-mesh.firebasestorage.app",
-    messagingSenderId: "298860609902",
-    appId: "1:298860609902:web:a6e18287dfcfe49b13417f",
-    measurementId: "G-KBCNYLM353"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+    // Stock
+    const stockRef = firebase.database().ref("stock");
+    stockRef.on("value", (snapshot) => {
+      const stock = snapshot.val();
+      const list = document.getElementById("stockList");
+      list.innerHTML = "";
+      for (let item in stock) {
+        list.innerHTML += `<li>${item}: ${stock[item]}</li>`;
+      }
+    });
+  </script>
 </body>
 </html>
