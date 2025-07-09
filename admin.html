@@ -2,91 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>⚙️ Admin Panel</title>
+  <title>⚙️ Admin Stock Update</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f5f7fa;
+      background: #f9f9f9;
       padding: 30px;
       text-align: center;
     }
     h1 {
-      font-size: 2em;
-      margin-bottom: 25px;
+      color: #333;
+      margin-bottom: 20px;
     }
-    .card {
+    .form-box {
       background: white;
-      padding: 25px;
-      max-width: 500px;
+      padding: 20px;
+      max-width: 400px;
       margin: auto;
-      border-radius: 12px;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
     input[type="number"] {
+      width: 90%;
       padding: 10px;
-      width: 100%;
-      margin-bottom: 12px;
-      border-radius: 6px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
     }
     button {
-      background: #007bff;
+      padding: 10px 20px;
+      background-color: #007bff;
       color: white;
       border: none;
-      padding: 12px 20px;
-      font-size: 1em;
-      border-radius: 8px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
     }
     button:hover {
-      background: #0056b3;
+      background-color: #0056b3;
     }
-    .info {
-      font-size: 16px;
-      margin: 10px 0;
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: green;
     }
   </style>
 </head>
 <body>
 
-  <h1>⚙️ Admin Panel</h1>
-  <div class="card">
-    <h3>Update Stock</h3>
-    <div id="stockForm">
-      <input type="number" id="Rough Records" placeholder="Rough Records">
-      <input type="number" id="Fair Records" placeholder="Fair Records">
-      <input type="number" id="Tutorial Books" placeholder="Tutorial Books">
-      <input type="number" id="Uniform Cloth" placeholder="Uniform Cloth">
-      <button onclick="updateStock()">✅ Update Stock</button>
-    </div>
-    <p class="info" id="message"></p>
+  <h1>🛠️ Update Store Stock</h1>
+
+  <div class="form-box">
+    <input type="number" id="Rough Records" placeholder="Rough Records">
+    <input type="number" id="Fair Records" placeholder="Fair Records">
+    <input type="number" id="Tutorial Books" placeholder="Tutorial Books">
+    <input type="number" id="Uniform Cloth" placeholder="Uniform Cloth">
+
+    <button onclick="updateStock()">Update Stock</button>
+    <div class="message" id="msgBox"></div>
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
+    // ✅ Firebase Config (yours)
+    var firebaseConfig = {
+      apiKey: "AIzaSyCUX8yDznSQb6VnVOmdzxxgxsXHqG2fP8U",
+      authDomain: "status-mesh.firebaseapp.com",
+      databaseURL: "https://status-mesh-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "status-mesh",
+      storageBucket: "status-mesh.appspot.com",
+      messagingSenderId: "298860609902",
+      appId: "1:298860609902:web:a6e18287dfcfe49b13417f",
+      measurementId: "G-KBCNYLM353"
     };
     firebase.initializeApp(firebaseConfig);
 
     function updateStock() {
       const stock = {
-        "Rough Records": document.getElementById("Rough Records").value,
-        "Fair Records": document.getElementById("Fair Records").value,
-        "Tutorial Books": document.getElementById("Tutorial Books").value,
-        "Uniform Cloth": document.getElementById("Uniform Cloth").value,
+        "Rough Records": document.getElementById("Rough Records").value || "0",
+        "Fair Records": document.getElementById("Fair Records").value || "0",
+        "Tutorial Books": document.getElementById("Tutorial Books").value || "0",
+        "Uniform Cloth": document.getElementById("Uniform Cloth").value || "0"
       };
 
       firebase.database().ref("stock").set(stock, (error) => {
-        const msg = document.getElementById("message");
+        const msg = document.getElementById("msgBox");
         if (error) {
           msg.innerText = "❌ Failed to update stock.";
           msg.style.color = "red";
@@ -97,5 +102,7 @@
       });
     }
   </script>
+
 </body>
 </html>
+
