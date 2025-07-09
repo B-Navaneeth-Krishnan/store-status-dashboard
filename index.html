@@ -4,97 +4,139 @@
   <meta charset="UTF-8">
   <title>📊 Lab/Store Status Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #d3cce3, #e9e4f0);
-      color: #333;
+      background: linear-gradient(to right, #f7f0ff, #dbe6ff);
       text-align: center;
       padding: 30px;
+      color: #333;
     }
+
     h1 {
-      font-size: 2em;
       color: #4b0082;
-      margin-bottom: 20px;
+      font-size: 2em;
+      margin-bottom: 30px;
     }
+
     .card {
       background: white;
       border-radius: 12px;
       padding: 25px;
-      max-width: 400px;
       margin: 20px auto;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     }
+
     .status {
-      font-size: 20px;
-      margin: 15px 0;
+      font-size: 22px;
+      margin-bottom: 10px;
     }
+
     .open {
       color: green;
       font-weight: bold;
     }
+
     .closed {
       color: red;
       font-weight: bold;
     }
+
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+      color: #555;
+    }
+
     ul {
       list-style: none;
       padding: 0;
     }
+
     li {
       font-size: 18px;
       margin: 8px 0;
       background: #f2f2f2;
-      padding: 8px;
+      padding: 10px;
       border-radius: 6px;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #666;
     }
   </style>
 </head>
 <body>
+
   <h1>📊 Lab/Store Status Dashboard</h1>
+
   <div class="card">
-    <div class="status" id="status">Loading status...</div>
-    <div id="lastSeen"></div>
-  </div>
-  <div class="card">
-    <h2>📚 Store Stock</h2>
-    <ul id="stockList"></ul>
+    <div class="status" id="statusText">Loading status...</div>
+    <div class="label" id="lastSeenText"></div>
   </div>
 
+  <div class="card">
+    <h2>📚 Store Stock</h2>
+    <ul id="stockList">
+      <li>Loading stock...</li>
+    </ul>
+  </div>
+
+  <footer>Powered by ESP32 + Firebase • Updated in real-time</footer>
+
   <script>
+    // ✅ Replace this config with YOUR Firebase config
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
       databaseURL: "https://YOUR_PROJECT.firebaseio.com",
       projectId: "YOUR_PROJECT",
       storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Status
+    // 🔁 Realtime Status from ESP32
     const statusRef = firebase.database().ref("storeStatus");
     statusRef.on("value", (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        document.getElementById("status").innerHTML = `Status: <span class="${data.status.toLowerCase()}">${data.status}</span>`;
-        document.getElementById("lastSeen").innerText = `Last Seen: ${new Date(data.last_seen * 1000).toLocaleString()}`;
+      const statusEl = document.getElementById("statusText");
+      const lastSeenEl = document.getElementById("lastSeenText");
+
+      if (data && data.status) {
+        statusEl.innerHTML = `Status: <span class="${data.status.toLowerCase()}">${data.status}</span>`;
+        lastSeenEl.innerText = "Last Seen: " + new Date(data.last_seen * 1000).toLocaleString();
+      } else {
+        statusEl.innerHTML = "Status: <span class='closed'>Closed</span>";
+        lastSeenEl.innerText = "Last Seen: Not available";
       }
     });
 
-    // Stock
+    // 🔁 Realtime Stock from Admin
     const stockRef = firebase.database().ref("stock");
     stockRef.on("value", (snapshot) => {
       const stock = snapshot.val();
-      const list = document.getElementById("stockList");
-      list.innerHTML = "";
-      for (let item in stock) {
-        list.innerHTML += `<li>${item}: ${stock[item]}</li>`;
+      const stockList = document.getElementById("stockList");
+
+      if (stock) {
+        stockList.innerHTML = "";
+        for (let item in stock) {
+          stockList.innerHTML += `<li><strong>${item}</strong>: ${stock[item]}</li>`;
+        }
+      } else {
+        stockList.innerHTML = "<li>No stock data available.</li>";
       }
     });
   </script>
+
 </body>
 </html>
