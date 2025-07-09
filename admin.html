@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>⚙️ Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 25px;
+    }
+    .card {
+      background: white;
+      padding: 25px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .info {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⚙️ Admin Panel</h1>
+  <div class="card">
+    <h3>Update Stock</h3>
+    <div id="stockForm">
+      <input type="number" id="Rough Records" placeholder="Rough Records">
+      <input type="number" id="Fair Records" placeholder="Fair Records">
+      <input type="number" id="Tutorial Books" placeholder="Tutorial Books">
+      <input type="number" id="Uniform Cloth" placeholder="Uniform Cloth">
+      <button onclick="updateStock()">✅ Update Stock</button>
+    </div>
+    <p class="info" id="message"></p>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function updateStock() {
+      const stock = {
+        "Rough Records": document.getElementById("Rough Records").value,
+        "Fair Records": document.getElementById("Fair Records").value,
+        "Tutorial Books": document.getElementById("Tutorial Books").value,
+        "Uniform Cloth": document.getElementById("Uniform Cloth").value,
+      };
+
+      firebase.database().ref("stock").set(stock, (error) => {
+        const msg = document.getElementById("message");
+        if (error) {
+          msg.innerText = "❌ Failed to update stock.";
+          msg.style.color = "red";
+        } else {
+          msg.innerText = "✅ Stock updated successfully!";
+          msg.style.color = "green";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
