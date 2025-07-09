@@ -1,41 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🧪 Stock Test Only</title>
+  <meta charset="UTF-8" />
+  <title>📊 Store/Lab Status Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f4ff;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #c9d6ff);
+      color: #333;
       text-align: center;
-      padding: 50px;
+      padding: 40px 20px;
     }
-    h2 {
+
+    h1 {
+      font-size: 2em;
       color: #4b0082;
+      margin-bottom: 30px;
     }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .status {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .open {
+      color: green;
+      font-weight: bold;
+    }
+
+    .closed {
+      color: red;
+      font-weight: bold;
+    }
+
     ul {
-      list-style-type: none;
+      list-style: none;
       padding: 0;
+      margin-top: 10px;
     }
+
     li {
-      background: white;
-      margin: 10px auto;
+      font-size: 18px;
+      background: #f7f9ff;
+      margin: 8px 0;
       padding: 10px;
-      width: 300px;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.85em;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h2>📦 Live Store Stock</h2>
-  <ul id="stockList">Loading stock...</ul>
+  <h1>📊 Live Lab/Store Status</h1>
+
+  <div class="card">
+    <div class="status" id="statusText">Checking status...</div>
+    <div id="lastSeenText"></div>
+  </div>
+
+  <div class="card">
+    <h3>📦 Stock Availability</h3>
+    <ul id="stockList">Loading stock...</ul>
+  </div>
+
+  <footer>Real-time updates by ESP32 + Firebase</footer>
 
   <script>
-    // Your Firebase config
-    var firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyCUX8yDznSQb6VnVOmdzxxgxsXHqG2fP8U",
       authDomain: "status-mesh.firebaseapp.com",
       databaseURL: "https://status-mesh-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -47,20 +94,34 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    const stockRef = firebase.database().ref("stock");
-    stockRef.on("value", function(snapshot) {
+    firebase.database().ref("storeStatus").on("value", (snapshot) => {
+      const data = snapshot.val();
+      const statusBox = document.getElementById("statusText");
+      const lastSeen = document.getElementById("lastSeenText");
+
+      if (data && data.status) {
+        statusBox.innerHTML = `Status: <span class="${data.status.toLowerCase()}">${data.status}</span>`;
+        lastSeen.innerHTML = `Last Seen: ${new Date(data.last_seen * 1000).toLocaleString()}`;
+      } else {
+        statusBox.innerHTML = "Status: <span class='closed'>Closed</span>";
+        lastSeen.innerHTML = "Last Seen: Not available";
+      }
+    });
+
+    firebase.database().ref("stock").on("value", (snapshot) => {
       const stock = snapshot.val();
-      const ul = document.getElementById("stockList");
-      ul.innerHTML = "";
+      const list = document.getElementById("stockList");
+      list.innerHTML = "";
 
       if (stock) {
         for (let item in stock) {
-          ul.innerHTML += `<li><strong>${item}:</strong> ${stock[item]}</li>`;
+          list.innerHTML += `<li><strong>${item}</strong>: ${stock[item]}</li>`;
         }
       } else {
-        ul.innerHTML = "<li>No stock data found.</li>";
+        list.innerHTML = "<li>No stock data found.</li>";
       }
     });
   </script>
 </body>
 </html>
+
